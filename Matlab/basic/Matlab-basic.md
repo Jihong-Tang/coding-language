@@ -10,7 +10,13 @@
     - [Continue long statements on multiple lines](#continue-long-statements-on-multiple-lines)
   - [Matrices and Arrays](#matrices-and-arrays)
     - [Creating, concatenating, and expanding matrices](#creating-concatenating-and-expanding-matrices)
+    - [Array indexing](#array-indexing)
+    - [Removing rows or columns from a matrix](#removing-rows-or-columns-from-a-matrix)
+    - [Multidimensional Arrays](#multidimensional-arrays)
   - [Data types](#data-types)
+    - [Special data types in Matlab](#special-data-types-in-matlab)
+    - [Data type transforming](#data-type-transforming)
+    - [Regular expression](#regular-expression)
   - [Operators and elementary operations](#operators-and-elementary-operations)
   - [Loops and conditional statements](#loops-and-conditional-statements)
 - [Data import and analysis](#data-import-and-analysis)
@@ -107,9 +113,122 @@ ind = find(A<0)
 %ind =
 %1x0 empty double row vector
 ```
+### Array indexing
+- The most common way is to explicitly specify the indices of the elements. For example, to access a single element of a matrix, specify the row number followed by the column number of the element.
+```Matlab
+A = [1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16]
+%A = 4×4
 
+ %    1     2     3     4
+ %    5     6     7     8
+ %    9    10    11    12
+ %   13    14    15    16
+
+e = A(3,2)
+%e = 10
+```
+
+- You can also reference multiple elements at a time by specifying their indices in a vector. For example, access the first and third elements of the second row of A.
+```Matlab
+r = A(2,[1 3])
+%r = 1×2
+
+   %  5     7
+```
+- To access elements in a range of rows or columns, use the colon. For example, access the elements in the first through third row and the second through fourth column of A.
+```Matlab
+r = A(1:3,2:4)
+%r = 3×3
+
+ %    2     3     4
+ %    6     7     8
+ %   10    11    12
+```
+
+- An alternative way to compute r is to use the keyword end to specify the second column through the last column. This approach lets you specify the last column without knowing exactly how many columns are in A.
+```Matlab
+r = A(1:3,2:end)
+%r = 3×3
+
+ %    2     3     4
+ %    6     7     8
+ %   10    11    12
+```
+- If you want to access all of the rows or columns, use the colon operator by itself. For example, return the entire third column of A.
+```Matlab
+r = A(:,3)
+%r = 4×1
+
+ %    3
+ %    7
+ %   11
+ %   15
+```
+- Another method for accessing elements of an array is to use only a single index, regardless of the size or dimensions of the array. This method is known as linear indexing. While MATLAB displays arrays according to their defined sizes and shapes, they are actually stored in memory as a single column of elements. A good way to visualize this concept is with a matrix. While the following array is displayed as a 3-by-3 matrix, MATLAB stores it as a single column made up of the columns of A appended one after the other. The stored vector contains the sequence of elements 12, 45, 33, 36, 29, 25, 91, 48, 11, and can be displayed using a single colon.
+```Matlab
+A = [12 36 91; 45 29 48; 33 25 11]
+%A = 3×3
+
+%    12    36    91
+%    45    29    48
+%    33    25    11
+
+Alinear = A(:)
+%Alinear = 9×1
+
+ %   12
+ %   45
+ %   33
+ %   36
+ %   29
+ %   25
+ %   91
+ %   48
+ %   11
+```
+
+### Removing rows or columns from a matrix
+
+- The easiest way to remove a row or column of a matrix is setting that row or column equal to a pair of empty square brackets []. For example, create a 4-by-4 matrix and remove the second row.
+```Matlab
+A = magic(4)
+%A = 4×4
+
+ %   16     2     3    13
+ %    5    11    10     8
+ %    9     7     6    12
+ %    4    14    15     1
+```
+```Matlab
+A(2,:) = []
+%A = 3×4
+
+ %   16     2     3    13
+ %    9     7     6    12
+ %    4    14    15     1
+```
+
+- Now remove the third column.
+```Matlab
+A(:,3) = []
+%A = 3×3
+
+ %   16     2    13
+ %    9     7    12
+ %    4    14     1
+```
+### Multidimensional Arrays
+Find [here](https://www.mathworks.com/help/matlab/math/multidimensional-arrays.html).
 
 ## Data types
+By default, MATLAB® stores all numeric variables as double-precision floating-point values. Additional data types store text, integer or single-precision values, or a combination of related data in a single variable. 
+
+### Special data types in Matlab 
+
+### Data type transforming
+
+### Regular expression 
+
 
 ## Operators and elementary operations
 
