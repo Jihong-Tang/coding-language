@@ -15,11 +15,16 @@
     - [Multidimensional Arrays](#multidimensional-arrays)
   - [Data types](#data-types)
     - [Special data types in Matlab](#special-data-types-in-matlab)
-    - [Data type transforming](#data-type-transforming)
+      - [Cell Arrays](#cell-arrays)
+      - [Struture Arrays](#struture-arrays)
+      - [Function Handles](#function-handles)
+      - [Other special structure](#other-special-structure)
     - [Regular expression](#regular-expression)
   - [Operators and elementary operations](#operators-and-elementary-operations)
   - [Loops and conditional statements](#loops-and-conditional-statements)
 - [Data import and analysis](#data-import-and-analysis)
+  - [Data import and output](#data-import-and-output)
+    - [Low-level File I/O](#low-level-file-io)
 - [Programming](#programming)
 
 # Name
@@ -224,19 +229,205 @@ Find [here](https://www.mathworks.com/help/matlab/math/multidimensional-arrays.h
 By default, MATLAB® stores all numeric variables as double-precision floating-point values. Additional data types store text, integer or single-precision values, or a combination of related data in a single variable. 
 
 ### Special data types in Matlab 
+#### Cell Arrays
+A [cell array](https://www.mathworks.com/help/matlab/cell-arrays.html?s_tid=CRUX_lftnav) is a data type with indexed data containers called cells, where each cell can contain any type of data. Cell arrays commonly contain either lists of character vectors of different lengths, or mixes of strings and numbers, or numeric arrays of different sizes. Refer to sets of cells by enclosing indices in smooth parentheses, (). Access the contents of cells by indexing with curly braces, {}.
 
-### Data type transforming
+- When you have data to put into a cell array, create the array using the cell array construction operator, {}.
+```Matlab
+myCell = {1, 2, 3;
+          'text', rand(5,10,2), {11; 22; 33}}
+%myCell = 2x3 cell array
+ %   {[   1]}    {[          2]}    {[     3]}
+ %   {'text'}    {5x10x2 double}    {3x1 cell}
+```
+- You also can use the {} operator to create an empty 0-by-0 cell array.
+```Matlab
+C = {}
+%C =
+%  0x0 empty cell array
+```
+- To add values to a cell array over time or in a loop, create an empty N-dimensional array using the cell function.
+```Matlab
+emptyCell = cell(3,4,2)
+%emptyCell = 3x4x2 cell array
+%emptyCell(:,:,1) = 
+
+%    {0x0 double}    {0x0 double}    {0x0 double}    {0x0 double}
+%    {0x0 double}    {0x0 double}    {0x0 double}    {0x0 double}
+%    {0x0 double}    {0x0 double}    {0x0 double}    {0x0 double}
+
+
+%emptyCell(:,:,2) = 
+
+%    {0x0 double}    {0x0 double}    {0x0 double}    {0x0 double}
+%    {0x0 double}    {0x0 double}    {0x0 double}    {0x0 double}
+%    {0x0 double}    {0x0 double}    {0x0 double}    {0x0 double}
+```
+emptyCell is a 3-by-4-by-2 cell array, where each cell contains an empty array, [].
+
+- Cell array indices in smooth parentheses refer to sets of cells. For example, to create a 2-by-2 cell array that is a subset of C, use smooth parentheses.
+```Matlab
+C = {'one', 'two', 'three'; 
+     1, 2, 3}
+%C = 2x3 cell array
+%    {'one'}    {'two'}    {'three'}
+%    {[  1]}    {[  2]}    {[    3]}
+```
+```Matlab
+upperLeft = C(1:2,1:2)
+%upperLeft = 2x2 cell array
+%    {'one'}    {'two'}
+%    {[  1]}    {[  2]}
+```
+- Access the contents of cells--the numbers, text, or other data within the cells--by indexing with curly braces. For example, to access the contents of the last cell of C, use curly braces.
+```Matlab
+last = C{2,3}
+%last = 3
+```
+last is a numeric variable of type double, because the cell contains a double value.
+
+- Similarly, you can index with curly braces to replace the contents of a cell.
+```Matlab
+C{2,3} = 300
+%C = 2x3 cell array
+%    {'first'}    {'second'}    {'third'}
+%    {[    1]}    {[     2]}    {[  300]}
+```
+
+#### Struture Arrays
+A structure array is a data type that groups related data using data containers called fields. Each field can contain any type of data. Access data in a structure using dot notation of the form structName.fieldName. For more information.
+
+- Store a patient record in a scalar structure with fields name, billing, and test.
+```Matlab
+patient(1).name = 'John Doe';
+patient(1).billing = 127.00;
+patient(1).test = [79, 75, 73; 180, 178, 177.5; 220, 210, 205];
+patient
+%patient = struct with fields:
+%       name: 'John Doe'
+%    billing: 127
+%       test: [3x3 double]
+```
+
+- Create scalar (1-by-1) structure arrays struct1 and struct2, each with fields a and b:
+```Matlab
+struct1.a = 'first';
+struct1.b = [1,2,3];
+struct2.a = 'second';
+struct2.b = rand(5);
+struct1,struct2
+%struct1 = struct with fields:
+%    a: 'first'
+%    b: [1 2 3]
+
+%struct2 = struct with fields:
+%    a: 'second'
+%    b: [5x5 double]
+```    
+Just as concatenating two scalar values such as [1,2] creates a 1-by-2 numeric array, concatenating struct1 and struct2 creates a 1-by-2 structure array.
+```Matlab
+combined = [struct1,struct2]
+%combined = 1x2 struct array with fields:
+%    a
+%    b
+```
+
+#### Function Handles
+A function handle is a data type that stores an association to a function. For example, you can use a function handle to construct anonymous functions or specify call back functions. Also, you can use a function handle to pass a function to another function, or call local functions from outside the main function.
+
+- To create a handle for a function, precede the function name with an @ sign. For example, if you have a function called myfunction, create a handle named f as follows:
+```Matlab
+f = @myfunction;
+```
+- You call a function using a handle the same way you call the function directly. For example, suppose that you have a function named computeSquare, defined as:
+```Matlab
+function y = computeSquare(x)
+y = x.^2;
+end
+```
+- Create a handle and call the function to compute the square of four.
+```Matlab
+f = @computeSquare;
+a = 4;
+b = f(a)
+%b =
+
+ %   16
+```
+- If the function does not require any inputs, then you can call the function with empty parentheses, such as
+```Matlab
+h = @ones;
+a = h()
+%a =
+
+%    1
+```
+- Without the parentheses, the assignment creates another function handle.
+```Matlab
+a = h
+%a = 
+
+   % @ones
+```
+- You can create handles to anonymous functions. An anonymous function is a one-line expression-based MATLAB function that does not require a program file. Construct a handle to an anonymous function by defining the body of the function, anonymous_function, and a comma-separated list of input arguments to the anonymous function, arglist. The syntax is:
+```Matlab
+h = @(arglist)anonymous_function
+```
+- For example, create a handle, sqr, to an anonymous function that computes the square of a number, and call the anonymous function using its handle.
+```Matlab
+sqr = @(n) n.^2;
+x = sqr(3)
+%x =
+
+%    9
+```
+
+#### Other special structure
+- [Categorical Arrays](https://www.mathworks.com/help/matlab/categorical-arrays.html?s_tid=CRUX_lftnav)
+- [Timetables](https://www.mathworks.com/help/matlab/timetables.html?s_tid=CRUX_lftnav)
+- [Map containers](https://www.mathworks.com/help/matlab/map-containers.html?s_tid=CRUX_lftnav)
+- [Time series](https://www.mathworks.com/help/matlab/map-containers.html?s_tid=CRUX_lftnav)
 
 ### Regular expression 
 
+|     Function    |                  Description                  |
+|:---------------:|:---------------------------------------------:|
+|      regexp     |            Match regular expression           |
+|     regexpi     |    Match regular expression, ignoring case    |
+|    regexprep    | Replace part of text using regular expression |
+| regexptranslate |     Translate text into regular expression    |
+
+ Syntax for `regexp`
+- startIndex = regexp(str,expression)
+- [startIndex,endIndex] = regexp(str,expression)
+- out = regexp(str,expression,outkey)
+- [out1,...,outN] = regexp(str,expression,outkey1,...,outkeyN)
+- ___ = regexp(___,option1,...,optionM)
+- ___ = regexp(___,'forceCellOutput')
+
 
 ## Operators and elementary operations
-
+Similar to C++
 ## Loops and conditional statements
-
-
+Similar to C++
 
 # Data import and analysis
-
+## Data import and output 
+### Low-level File I/O
+|  Function |                       Description                      |
+|:---------:|:------------------------------------------------------:|
+|   fclose  |               Close one or all open files              |
+|    feof   |                Test for end of the file                |
+|   ferror  |               File I/O error information               |
+|   fgetl   |    Read line from file, removing newline characters    |
+| filteread |              Read contents of file as text             |
+|   fopen   |    Open file, or obtain information about open files   |
+|  fprintf  |                 Write data to text file                |
+|   fread   |               Read data from binary file               |
+|  frewind  | Move file position indicator to beginning of open file |
+|   fscanf  |                Read data from text file                |
+|   fseek   |           Move to specified position in file           |
+|   ftell   |                    Current position                    |
+|   fwrite  |                Write data to binary file               |
 
 # Programming
